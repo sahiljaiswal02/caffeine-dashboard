@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
@@ -13,10 +13,12 @@ export default function LoginPage() {
   const { role, user } = useAuth();
 
   // If already logged in, redirect based on role
-  if (user) {
-    if (role === "admin") router.push("/admin");
-    else if (role === "cook") router.push("/cook");
-  }
+  useEffect(() => {
+    if (user) {
+      if (role === "admin") router.push("/admin");
+      else if (role === "cook") router.push("/cook");
+    }
+  }, [user, role, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

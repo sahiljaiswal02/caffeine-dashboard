@@ -228,21 +228,21 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-12">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-8 py-5 shadow-sm sticky top-0 z-20 flex justify-between items-center">
+      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 px-4 sm:px-8 py-5 shadow-sm sticky top-0 z-20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight">Admin Dashboard</h1>
+          <h1 className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-900 to-indigo-600">Admin Dashboard</h1>
           <p className="text-sm text-gray-500 font-medium mt-1">Analytics & Business Overview</p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <button
             onClick={() => router.push("/cook")}
-            className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-bold hover:bg-indigo-100 transition-colors shadow-sm"
+            className="flex-1 sm:flex-none px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-bold hover:bg-indigo-100 transition-colors shadow-sm"
           >
             Kitchen Display
           </button>
           <button
             onClick={() => router.push("/admin/inventory")}
-            className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors shadow-sm"
+            className="flex-1 sm:flex-none px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors shadow-sm"
           >
             Inventory
           </button>
@@ -255,38 +255,38 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-8 mt-8 space-y-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-8 mt-8 space-y-8">
         
         {/* Top Tier Metrics - Revenue */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all">
-            <div className="absolute -right-6 -top-6 w-24 h-24 bg-green-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 relative overflow-hidden group">
+            <div className="absolute -right-12 -top-12 w-32 h-32 bg-green-500/10 rounded-full group-hover:scale-150 transition-transform duration-700 blur-xl"></div>
             <div className="relative">
-              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Daily Revenue</h3>
-              <p className="mt-2 text-4xl font-black text-gray-900">{formatCurrency(dailyRevenue)}</p>
-              <div className="mt-4 flex items-center text-sm font-semibold text-green-600">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Daily Revenue</h3>
+              <p className="mt-2 text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-green-700 to-green-500">{formatCurrency(dailyRevenue)}</p>
+              <div className="mt-4 flex items-center text-sm font-bold text-green-600 bg-green-50 w-fit px-3 py-1 rounded-full">
                 <span>{ordersToday} orders today</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 relative overflow-hidden group hover:shadow-md transition-all">
-            <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-50 rounded-full group-hover:scale-150 transition-transform duration-500 ease-out"></div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 relative overflow-hidden group">
+            <div className="absolute -right-12 -top-12 w-32 h-32 bg-blue-500/10 rounded-full group-hover:scale-150 transition-transform duration-700 blur-xl"></div>
             <div className="relative">
-              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Monthly Revenue</h3>
-              <p className="mt-2 text-4xl font-black text-gray-900">{formatCurrency(monthlyRevenue)}</p>
-              <div className="mt-4 flex items-center text-sm font-semibold text-blue-600">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Monthly Revenue</h3>
+              <p className="mt-2 text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-700 to-blue-500">{formatCurrency(monthlyRevenue)}</p>
+              <div className="mt-4 flex items-center text-sm font-bold text-blue-600 bg-blue-50 w-fit px-3 py-1 rounded-full">
                 <span>{ordersThisMonth} orders this month</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-gray-900 p-6 rounded-2xl shadow-lg border border-gray-800 relative overflow-hidden">
-            <div className="absolute right-0 top-0 w-32 h-32 bg-white opacity-5 rounded-bl-full"></div>
+          <div className="bg-gradient-to-br from-gray-900 to-slate-800 p-6 rounded-2xl shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-700 relative overflow-hidden group">
+            <div className="absolute right-0 top-0 w-40 h-40 bg-white/5 rounded-full blur-2xl group-hover:scale-110 transition-transform duration-700"></div>
             <div className="relative z-10">
-              <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Lifetime Revenue</h3>
-              <p className="mt-2 text-4xl font-black text-white">{formatCurrency(totalRevenue)}</p>
-              <div className="mt-4 flex items-center text-sm font-semibold text-gray-400">
+              <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Lifetime Revenue</h3>
+              <p className="mt-2 text-4xl font-black text-white drop-shadow-md">{formatCurrency(totalRevenue)}</p>
+              <div className="mt-4 flex items-center text-sm font-bold text-gray-300 bg-gray-800/50 w-fit px-3 py-1 rounded-full border border-gray-700">
                 <span>{orders.length} total lifetime orders</span>
               </div>
             </div>
@@ -295,68 +295,73 @@ export default function AdminDashboard() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Middle Tier - Payment Breakdown */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 lg:col-span-1">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-1 hover:shadow-lg transition-shadow duration-300">
             <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
               Payment Breakdown
             </h3>
             <div className="space-y-4">
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+              <div className="flex justify-between items-center p-4 bg-gray-50/50 rounded-xl border border-gray-100 group hover:border-indigo-100 transition-colors">
                 <div className="flex items-center gap-3">
-                  <span className="font-bold text-gray-700">UPI</span>
+                  <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <span className="font-black text-indigo-600 text-xs">UPI</span>
+                  </div>
                 </div>
-                <span className="font-bold text-gray-900 text-lg">{formatCurrency(upiRevenue)}</span>
+                <span className="font-black text-gray-900 text-lg">{formatCurrency(upiRevenue)}</span>
               </div>
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+              <div className="flex justify-between items-center p-4 bg-gray-50/50 rounded-xl border border-gray-100 group hover:border-emerald-100 transition-colors">
                 <div className="flex items-center gap-3">
-                  <span className="font-bold text-gray-700">Cash</span>
+                  <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <span className="font-black text-emerald-600 text-xs">CASH</span>
+                  </div>
                 </div>
-                <span className="font-bold text-gray-900 text-lg">{formatCurrency(cashRevenue)}</span>
+                <span className="font-black text-gray-900 text-lg">{formatCurrency(cashRevenue)}</span>
               </div>
             </div>
           </div>
 
           {/* Middle Tier - Kitchen & Top Products */}
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-2xl shadow-sm border border-orange-100">
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-2xl shadow-sm border border-orange-100/50 hover:shadow-lg transition-shadow duration-300 relative overflow-hidden">
+              <div className="absolute right-0 bottom-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl"></div>
               <h3 className="text-lg font-bold text-orange-900 mb-6 flex items-center gap-2">
                 Top Product Today
               </h3>
-              <div className="flex flex-col items-center justify-center h-32 text-center">
+              <div className="flex flex-col items-center justify-center h-32 text-center relative z-10">
                 {topProductToday.count > 0 ? (
                   <>
-                    <p className="text-2xl font-black text-orange-950 leading-tight">{topProductToday.name}</p>
-                    <p className="mt-2 text-orange-700 font-bold bg-orange-200/50 px-4 py-1 rounded-full">
+                    <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-800 to-amber-600 leading-tight">{topProductToday.name}</p>
+                    <p className="mt-3 text-orange-800 font-bold bg-white/60 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-sm border border-orange-100">
                       {topProductToday.count} units sold
                     </p>
                   </>
                 ) : (
-                  <p className="text-orange-800 font-medium">No sales yet today</p>
+                  <p className="text-orange-800 font-medium bg-white/50 px-4 py-2 rounded-full">No sales yet today</p>
                 )}
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow duration-300">
               <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
                 Kitchen Queue
               </h3>
-              <div className="flex justify-between items-end h-32 pb-2">
-                <div className="flex flex-col items-center gap-2 w-1/3">
-                  <div className="w-full bg-orange-100 rounded-t-lg relative flex justify-center items-end" style={{ height: `${Math.max(20, Math.min(100, kitchenStatus.pending * 10))}%` }}>
-                    <span className="absolute -top-6 font-bold text-orange-600">{kitchenStatus.pending}</span>
+              <div className="flex justify-between items-end h-32 pb-2 px-2">
+                <div className="flex flex-col items-center gap-3 w-1/3 group">
+                  <div className="w-full max-w-[60px] bg-gradient-to-t from-orange-100 to-orange-50 rounded-t-xl relative flex justify-center items-end group-hover:from-orange-200 transition-colors" style={{ height: `${Math.max(20, Math.min(100, kitchenStatus.pending * 10))}%` }}>
+                    <span className="absolute -top-7 font-black text-orange-600 bg-orange-50 px-2 py-0.5 rounded-md shadow-sm border border-orange-100">{kitchenStatus.pending}</span>
                   </div>
-                  <span className="text-xs font-bold text-gray-500 uppercase">Pending</span>
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Pending</span>
                 </div>
-                <div className="flex flex-col items-center gap-2 w-1/3">
-                  <div className="w-full bg-blue-100 rounded-t-lg relative flex justify-center items-end" style={{ height: `${Math.max(20, Math.min(100, kitchenStatus.preparing * 10))}%` }}>
-                    <span className="absolute -top-6 font-bold text-blue-600">{kitchenStatus.preparing}</span>
+                <div className="flex flex-col items-center gap-3 w-1/3 group">
+                  <div className="w-full max-w-[60px] bg-gradient-to-t from-blue-100 to-blue-50 rounded-t-xl relative flex justify-center items-end group-hover:from-blue-200 transition-colors" style={{ height: `${Math.max(20, Math.min(100, kitchenStatus.preparing * 10))}%` }}>
+                    <span className="absolute -top-7 font-black text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md shadow-sm border border-blue-100">{kitchenStatus.preparing}</span>
                   </div>
-                  <span className="text-xs font-bold text-gray-500 uppercase">Prep</span>
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Prep</span>
                 </div>
-                <div className="flex flex-col items-center gap-2 w-1/3">
-                  <div className="w-full bg-purple-100 rounded-t-lg relative flex justify-center items-end" style={{ height: `${Math.max(20, Math.min(100, kitchenStatus.ready * 10))}%` }}>
-                    <span className="absolute -top-6 font-bold text-purple-600">{kitchenStatus.ready}</span>
+                <div className="flex flex-col items-center gap-3 w-1/3 group">
+                  <div className="w-full max-w-[60px] bg-gradient-to-t from-purple-100 to-purple-50 rounded-t-xl relative flex justify-center items-end group-hover:from-purple-200 transition-colors" style={{ height: `${Math.max(20, Math.min(100, kitchenStatus.ready * 10))}%` }}>
+                    <span className="absolute -top-7 font-black text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md shadow-sm border border-purple-100">{kitchenStatus.ready}</span>
                   </div>
-                  <span className="text-xs font-bold text-gray-500 uppercase">Ready</span>
+                  <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Ready</span>
                 </div>
               </div>
             </div>
@@ -364,16 +369,16 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Orders Table */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+        <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden mb-8">
+          <div className="px-4 sm:px-6 py-5 border-b border-gray-100 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
               Recent Orders
             </h3>
-            <div className="flex items-center gap-4">
-              <span className="text-sm font-semibold text-gray-500">Showing latest {Math.min(orders.length, 15)}</span>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+              <span className="text-sm font-semibold text-gray-400 bg-gray-50 px-3 py-1 rounded-full">Showing latest {Math.min(orders.length, 15)}</span>
               <button 
                 onClick={generatePDF}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm"
+                className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white rounded-xl text-sm font-bold transition-all shadow-md shadow-indigo-500/20"
               >
                 Export Monthly Report
               </button>
