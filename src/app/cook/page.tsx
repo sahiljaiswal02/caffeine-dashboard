@@ -11,6 +11,10 @@ export default function CookDashboard() {
   const [orders, setOrders] = useState<any[]>([]);
 
   useEffect(() => {
+    document.title = "Cook Dashboard | Shawarma 365";
+  }, []);
+
+  useEffect(() => {
     if (!loading && !user) {
       router.push("/");
     } else if (!loading && user && role !== "cook" && role !== "admin") {
@@ -94,16 +98,15 @@ export default function CookDashboard() {
                     
                     {(cartItem.selectedBread || (cartItem.selectedAddons && cartItem.selectedAddons.length > 0)) && (
                       <div className="mt-1 pl-1 border-l-2 border-gray-200 text-gray-500 text-xs space-y-1">
-                        {cartItem.selectedBread && <div>🥖 Bread: {cartItem.selectedBread}</div>}
+                        {cartItem.selectedBread && <div>Bread: {cartItem.selectedBread}</div>}
                         {cartItem.selectedAddons && cartItem.selectedAddons.length > 0 && (
-                          <div>➕ {cartItem.selectedAddons.map((a: any) => a.name).join(", ")}</div>
+                          <div>{cartItem.selectedAddons.map((a: any) => a.name).join(", ")}</div>
                         )}
                       </div>
                     )}
                     
                     {cartItem.specialInstructions && (
                       <div className="mt-1.5 bg-red-50 text-red-700 p-2 rounded text-xs font-medium border border-red-100 flex items-start">
-                        <span className="mr-1">⚠️</span>
                         <span>{cartItem.specialInstructions}</span>
                       </div>
                     )}
@@ -121,7 +124,7 @@ export default function CookDashboard() {
               onClick={() => updateOrderStatus(order.id, "preparing")}
               className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white rounded-lg font-bold transition-colors shadow-sm flex justify-center items-center gap-2"
             >
-              <span>👨‍🍳 Start Preparing</span>
+              <span>Start Preparing</span>
             </button>
           )}
           {columnStatus === "preparing" && (
@@ -129,7 +132,7 @@ export default function CookDashboard() {
               onClick={() => updateOrderStatus(order.id, "ready")}
               className="w-full py-2.5 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white rounded-lg font-bold transition-colors shadow-sm flex justify-center items-center gap-2"
             >
-              <span>🔔 Mark as Ready</span>
+              <span>Mark as Ready</span>
             </button>
           )}
           {columnStatus === "ready" && (
@@ -137,12 +140,12 @@ export default function CookDashboard() {
               onClick={() => updateOrderStatus(order.id, "delivered")}
               className="w-full py-2.5 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white rounded-lg font-bold transition-colors shadow-sm flex justify-center items-center gap-2"
             >
-              <span>✅ Complete Order</span>
+              <span>Complete Order</span>
             </button>
           )}
           {columnStatus === "delivered" && (
             <div className="w-full py-2 bg-gray-100 text-gray-500 rounded-lg font-medium text-center text-sm flex justify-center items-center gap-2">
-              <span>🎉 Completed</span>
+              <span>Completed</span>
             </div>
           )}
         </div>
@@ -181,14 +184,14 @@ export default function CookDashboard() {
       </header>
 
       {/* Kanban Board */}
-      <main className="flex-1 p-6 overflow-x-auto">
-        <div className="flex gap-6 min-w-max h-[calc(100vh-120px)]">
+      <main className="flex-1 p-6 overflow-x-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 h-[calc(100vh-120px)] overflow-y-auto xl:overflow-hidden pb-10">
           
           {/* Column 1: New Orders */}
-          <div className="w-[350px] flex flex-col bg-slate-100/50 rounded-2xl border border-slate-200">
+          <div className="flex flex-col bg-slate-100/50 rounded-2xl border border-slate-200 h-full">
             <div className="p-4 border-b border-slate-200 bg-slate-100 rounded-t-2xl flex items-center justify-between sticky top-0">
               <h2 className="font-bold text-slate-700 flex items-center gap-2">
-                <span className="text-lg">📥</span> New Orders
+                New Orders
               </h2>
               <span className="bg-white text-slate-600 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                 {orders.filter(o => o.status === "pending").length}
@@ -198,7 +201,6 @@ export default function CookDashboard() {
               {orders.filter(o => o.status === "pending").map(order => renderTicket(order, "pending"))}
               {orders.filter(o => o.status === "pending").length === 0 && (
                 <div className="h-full flex flex-col items-center justify-center text-slate-400 p-6 text-center space-y-2">
-                  <div className="text-4xl opacity-50">☕️</div>
                   <p className="text-sm font-medium">No new orders</p>
                 </div>
               )}
@@ -206,10 +208,10 @@ export default function CookDashboard() {
           </div>
 
           {/* Column 2: Preparing */}
-          <div className="w-[350px] flex flex-col bg-orange-50/30 rounded-2xl border border-orange-100">
+          <div className="flex flex-col bg-orange-50/30 rounded-2xl border border-orange-100 h-full">
             <div className="p-4 border-b border-orange-100 bg-orange-50/50 rounded-t-2xl flex items-center justify-between sticky top-0">
               <h2 className="font-bold text-orange-800 flex items-center gap-2">
-                <span className="text-lg">🔥</span> Preparing
+                Preparing
               </h2>
               <span className="bg-white text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                 {orders.filter(o => o.status === "preparing").length}
@@ -221,10 +223,10 @@ export default function CookDashboard() {
           </div>
 
           {/* Column 3: Ready */}
-          <div className="w-[350px] flex flex-col bg-blue-50/30 rounded-2xl border border-blue-100">
+          <div className="flex flex-col bg-blue-50/30 rounded-2xl border border-blue-100 h-full">
             <div className="p-4 border-b border-blue-100 bg-blue-50/50 rounded-t-2xl flex items-center justify-between sticky top-0">
               <h2 className="font-bold text-blue-800 flex items-center gap-2">
-                <span className="text-lg">🛍️</span> Ready for Pickup
+                Ready for Pickup
               </h2>
               <span className="bg-white text-blue-700 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                 {orders.filter(o => o.status === "ready").length}
@@ -236,10 +238,10 @@ export default function CookDashboard() {
           </div>
 
           {/* Column 4: Completed */}
-          <div className="w-[350px] flex flex-col bg-green-50/30 rounded-2xl border border-green-100">
+          <div className="flex flex-col bg-green-50/30 rounded-2xl border border-green-100 h-full">
             <div className="p-4 border-b border-green-100 bg-green-50/50 rounded-t-2xl flex items-center justify-between sticky top-0">
               <h2 className="font-bold text-green-800 flex items-center gap-2">
-                <span className="text-lg">✨</span> Completed
+                Completed
               </h2>
               <span className="bg-white text-green-700 text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
                 {orders.filter(o => o.status === "delivered").length}

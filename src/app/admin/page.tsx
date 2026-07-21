@@ -1,14 +1,21 @@
 "use client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function AdminDashboard() {
   const { role, loading, user } = useAuth();
   const router = useRouter();
   const [orders, setOrders] = useState<any[]>([]);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = "Admin Dashboard | Shawarma 365";
+  }, []);
 
   useEffect(() => {
     if (!loading && (!user || role !== "admin")) {
@@ -37,7 +44,6 @@ export default function AdminDashboard() {
     dailyRevenue,
     upiRevenue,
     cashRevenue,
-    cardRevenue,
     topProductToday,
     kitchenStatus,
     ordersToday,
@@ -52,7 +58,6 @@ export default function AdminDashboard() {
     let dailyRev = 0;
     let upiRev = 0;
     let cashRev = 0;
-    let cardRev = 0;
     
     let oToday = 0;
     let oThisMonth = 0;
@@ -96,7 +101,6 @@ export default function AdminDashboard() {
 
       if (order.paymentMethod === "upi") upiRev += amount;
       if (order.paymentMethod === "cash") cashRev += amount;
-      if (order.paymentMethod === "card") cardRev += amount;
 
       if (order.status === "pending") kitchen.pending++;
       if (order.status === "preparing") kitchen.preparing++;
@@ -115,7 +119,6 @@ export default function AdminDashboard() {
       dailyRevenue: dailyRev,
       upiRevenue: upiRev,
       cashRevenue: cashRev,
-      cardRevenue: cardRev,
       topProductToday: topProduct,
       kitchenStatus: kitchen,
       ordersToday: oToday,
@@ -151,6 +154,77 @@ export default function AdminDashboard() {
     }
   };
 
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    
+    // Title
+    const monthYear = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+    doc.setFontSize(20);
+    doc.text(`Monthly Sales Report - ${monthYear}`, 14, 22);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
+    
+    // Filter orders for this month
+    const now = new Date();
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    
+    const monthlyOrders = orders.filter(order => {
+      const orderDate = new Date(order.createdAt?.seconds ? order.createdAt.seconds * 1000 : Date.parse(order.createdAt) || 0).getTime();
+      return orderDate >= thisMonthStart;
+    });
+
+    const totalRev = monthlyOrders.reduce((acc, order) => acc + (order.total || 0), 0);
+
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.text(`Total Orders: ${monthlyOrders.length}`, 14, 40);
+    doc.text(`Total Revenue: Rs. ${totalRev.toLocaleString('en-IN')}`, 14, 46);
+
+    const tableColumn = ["Order ID", "Date", "Items", "Payment", "Amount", "Status"];
+    const tableRows: any[] = [];
+
+    monthlyOrders.forEach(order => {
+      const date = new Date(order.createdAt?.seconds ? order.createdAt.seconds * 1000 : Date.parse(order.createdAt) || 0);
+      const dateStr = date.toLocaleDateString('en-IN') + ' ' + date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+      
+      const itemDetails = order.items?.map((cartItem: any) => {
+        let detailStr = `${cartItem.quantity || 1}x ${cartItem.item?.name}`;
+        const extras = [];
+        if (cartItem.selectedBread) extras.push(`Bread: ${cartItem.selectedBread}`);
+        if (cartItem.selectedAddons?.length > 0) extras.push(`Add-ons: ${cartItem.selectedAddons.map((a:any) => a.name).join(", ")}`);
+        if (cartItem.specialInstructions) extras.push(`Note: ${cartItem.specialInstructions}`);
+        
+        if (extras.length > 0) {
+          detailStr += `\n   ${extras.join(" | ")}`;
+        }
+        return detailStr;
+      }).join("\n") || "No items";
+      
+      const rowData = [
+        `#${order.id.slice(-5).toUpperCase()}`,
+        dateStr,
+        itemDetails,
+        order.paymentMethod ? order.paymentMethod.toUpperCase() : "N/A",
+        `Rs. ${order.total || 0}`,
+        order.status.toUpperCase()
+      ];
+      tableRows.push(rowData);
+    });
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 55,
+      theme: 'grid',
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [79, 70, 229] } // Indigo 600
+    });
+
+    doc.save(`Sales_Report_${monthYear.replace(' ', '_')}.pdf`);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-12">
       {/* Header */}
@@ -164,7 +238,7 @@ export default function AdminDashboard() {
             onClick={() => router.push("/cook")}
             className="px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-bold hover:bg-indigo-100 transition-colors shadow-sm"
           >
-            👨‍🍳 Kitchen Display
+            Kitchen Display
           </button>
           <button
             onClick={() => auth.signOut()}
@@ -217,29 +291,20 @@ export default function AdminDashboard() {
           {/* Middle Tier - Payment Breakdown */}
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 lg:col-span-1">
             <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <span>💳</span> Payment Breakdown
+              Payment Breakdown
             </h3>
             <div className="space-y-4">
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-xl">📱</div>
                   <span className="font-bold text-gray-700">UPI</span>
                 </div>
                 <span className="font-bold text-gray-900 text-lg">{formatCurrency(upiRevenue)}</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-xl">💵</div>
                   <span className="font-bold text-gray-700">Cash</span>
                 </div>
                 <span className="font-bold text-gray-900 text-lg">{formatCurrency(cashRevenue)}</span>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-xl">💳</div>
-                  <span className="font-bold text-gray-700">Card</span>
-                </div>
-                <span className="font-bold text-gray-900 text-lg">{formatCurrency(cardRevenue)}</span>
               </div>
             </div>
           </div>
@@ -248,7 +313,7 @@ export default function AdminDashboard() {
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-2xl shadow-sm border border-orange-100">
               <h3 className="text-lg font-bold text-orange-900 mb-6 flex items-center gap-2">
-                <span>🏆</span> Top Product Today
+                Top Product Today
               </h3>
               <div className="flex flex-col items-center justify-center h-32 text-center">
                 {topProductToday.count > 0 ? (
@@ -266,7 +331,7 @@ export default function AdminDashboard() {
 
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
               <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <span>🍳</span> Kitchen Queue
+                Kitchen Queue
               </h3>
               <div className="flex justify-between items-end h-32 pb-2">
                 <div className="flex flex-col items-center gap-2 w-1/3">
@@ -296,9 +361,17 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="px-6 py-5 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-              <span>📋</span> Recent Orders
+              Recent Orders
             </h3>
-            <span className="text-sm font-semibold text-gray-500">Showing latest {Math.min(orders.length, 15)}</span>
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-semibold text-gray-500">Showing latest {Math.min(orders.length, 15)}</span>
+              <button 
+                onClick={generatePDF}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm"
+              >
+                Export Monthly Report
+              </button>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -315,29 +388,88 @@ export default function AdminDashboard() {
               <tbody className="divide-y divide-gray-100">
                 {orders.slice(0, 15).map((order) => {
                   const itemCount = order.items?.reduce((acc: number, item: any) => acc + (item.quantity || 1), 0) || 0;
+                  const isExpanded = expandedOrderId === order.id;
+                  
                   return (
-                    <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                        #{order.id.slice(-5).toUpperCase()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">
-                        {formatTime(order.createdAt)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600">
-                        {itemCount} item{itemCount !== 1 ? 's' : ''}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="flex items-center gap-1.5 text-sm font-bold text-gray-700 uppercase">
-                          {order.paymentMethod === 'upi' ? '📱' : order.paymentMethod === 'cash' ? '💵' : '💳'} {order.paymentMethod}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-gray-900">
-                        {formatCurrency(order.total || 0)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        {getStatusBadge(order.status)}
-                      </td>
-                    </tr>
+                    <React.Fragment key={order.id}>
+                      <tr 
+                        className={`hover:bg-gray-50 transition-colors cursor-pointer ${isExpanded ? 'bg-gray-50' : ''}`}
+                        onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
+                          #{order.id.slice(-5).toUpperCase()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">
+                          {formatTime(order.createdAt)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-600">
+                          {itemCount} item{itemCount !== 1 ? 's' : ''}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="flex items-center gap-1.5 text-sm font-bold text-gray-700 uppercase">
+                            {order.paymentMethod}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-gray-900">
+                          {formatCurrency(order.total || 0)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right flex justify-end items-center gap-3">
+                          {getStatusBadge(order.status)}
+                          <span className="text-gray-400">
+                            {isExpanded ? '▼' : '▶'}
+                          </span>
+                        </td>
+                      </tr>
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan={6} className="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                            <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                              <h4 className="text-sm font-bold text-gray-800 mb-3 border-b border-gray-100 pb-2">Order Details</h4>
+                              <ul className="space-y-3">
+                                {order.items?.map((cartItem: any, idx: number) => (
+                                  <li key={idx} className="text-sm flex justify-between items-start">
+                                    <div className="flex items-start">
+                                      <span className="bg-gray-800 text-white rounded px-2 py-0.5 text-xs font-bold mr-3 mt-0.5">
+                                        {cartItem.quantity}x
+                                      </span>
+                                      <div>
+                                        <span className="font-semibold text-gray-800 text-base">{cartItem.item?.name}</span>
+                                        
+                                        {(cartItem.selectedBread || (cartItem.selectedAddons && cartItem.selectedAddons.length > 0)) && (
+                                          <div className="mt-1 pl-1 border-l-2 border-gray-200 text-gray-500 text-xs space-y-1">
+                                            {cartItem.selectedBread && <div>Bread: {cartItem.selectedBread}</div>}
+                                            {cartItem.selectedAddons && cartItem.selectedAddons.length > 0 && (
+                                              <div>Add-ons: {cartItem.selectedAddons.map((a: any) => a.name).join(", ")}</div>
+                                            )}
+                                          </div>
+                                        )}
+                                        
+                                        {cartItem.specialInstructions && (
+                                          <div className="mt-1.5 bg-red-50 text-red-700 p-2 rounded text-xs font-medium border border-red-100 flex items-start">
+                                            <span>Note: {cartItem.specialInstructions}</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <span className="font-bold text-gray-600">
+                                      {formatCurrency(cartItem.item?.price * cartItem.quantity)}
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                              {order.tableNumber && (
+                                <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center text-sm font-medium">
+                                  <span className="text-gray-500">Dining Option</span>
+                                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold">
+                                    Table {order.tableNumber}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   );
                 })}
               </tbody>
