@@ -175,6 +175,12 @@ export default function CookDashboard() {
             </button>
           )}
           <button
+            onClick={() => router.push("/cook/inventory")}
+            className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-semibold hover:bg-emerald-100 transition-colors"
+          >
+            Inventory
+          </button>
+          <button
             onClick={() => auth.signOut()}
             className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-100 transition-colors"
           >

@@ -241,6 +241,12 @@ export default function AdminDashboard() {
             Kitchen Display
           </button>
           <button
+            onClick={() => router.push("/admin/inventory")}
+            className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors shadow-sm"
+          >
+            Inventory
+          </button>
+          <button
             onClick={() => auth.signOut()}
             className="px-4 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-bold hover:bg-red-100 transition-colors shadow-sm"
           >
