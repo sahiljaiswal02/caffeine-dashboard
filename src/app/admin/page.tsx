@@ -19,7 +19,7 @@ export default function AdminDashboard() {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Admin Dashboard | Caffeine";
+    document.title = "Admin Dashboard | Shawarma365";
   }, []);
 
   useEffect(() => {

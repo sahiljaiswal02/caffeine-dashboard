@@ -15,7 +15,7 @@ export default function CookDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>("pending");
 
   useEffect(() => {
-    document.title = "Kitchen Dashboard | Caffeine";
+    document.title = "Kitchen Dashboard | Shawarma365";
   }, []);
 
   useEffect(() => {

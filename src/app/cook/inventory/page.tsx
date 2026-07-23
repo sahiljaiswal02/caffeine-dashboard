@@ -24,7 +24,7 @@ export default function CookInventory() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    document.title = "Inventory Management | Caffeine";
+    document.title = "Inventory Management | Shawarma365";
   }, []);
 
   useEffect(() => {
