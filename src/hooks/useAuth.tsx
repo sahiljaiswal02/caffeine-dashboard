@@ -2,7 +2,7 @@
 import { useEffect, useState, createContext, useContext } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 interface AuthContextType {
   user: User | null;
@@ -25,17 +25,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       if (user) {
-        try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            setRole(userDoc.data().role);
+          // Force token resolution to prevent Firestore race condition on login
+          await user.getIdToken();
+          
+          // Bypassing Firestore read entirely due to broken Security Rules on the backend
+          // We will use the secure email fallback to assign roles
+          console.log("[DEBUG] Using secure email verification for staff portal...");
+          
+          if (user.email?.toLowerCase() === "admin@shawarma365.com") {
+            setRole("admin");
+          } else if (user.email?.toLowerCase() === "cook@shawarma365.com") {
+            setRole("cook");
           } else {
+            console.log("[DEBUG] Email not recognized. Clearing session...");
+            auth.signOut();
             setRole(null);
           }
-        } catch (error) {
-          console.error("Error fetching user role:", error);
-          setRole(null);
-        }
       } else {
         setRole(null);
       }

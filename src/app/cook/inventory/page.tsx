@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { collection, query, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
+import { getImageUrl } from "@/lib/image-map";
 import { Search, Package, ArrowLeft, LogOut, Coffee, Edit, X, Save } from "lucide-react";
 
 export default function CookInventory() {
@@ -173,44 +174,52 @@ export default function CookInventory() {
             const isAvailable = item.isAvailable !== false;
             
             return (
-              <div key={item.id} className={`bg-white rounded-2xl shadow-sm border p-5 flex flex-col transition-all duration-300 ${isAvailable ? 'border-slate-200 hover:shadow-md hover:border-orange-200' : 'border-red-100 bg-red-50/10 opacity-75 grayscale-[0.2]'}`}>
+              <div key={item.id} className={`bg-white rounded-2xl shadow-sm border overflow-hidden flex flex-col transition-all duration-300 ${isAvailable ? 'border-slate-200 hover:shadow-md hover:border-orange-200' : 'border-red-100 bg-red-50/10 opacity-75 grayscale-[0.2]'}`}>
                 
-                <div className="flex justify-between items-start mb-3">
-                  <div className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                {/* Image Section */}
+                <div className="w-full h-32 bg-slate-100 relative">
+                  {item.image ? (
+                    <img src={getImageUrl(item.image) || ""} alt={item.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-3xl">🍔</div>
+                  )}
+                  <div className="absolute top-2 left-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-white/90 backdrop-blur-sm text-slate-800 shadow-sm">
                     {item.categoryId}
                   </div>
+                </div>
+
+                <div className="p-5 flex flex-col flex-1">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-bold text-slate-900 leading-tight pr-2 flex-1">{item.name}</h3>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button 
+                        onClick={() => toggleAvailability(item.id, isAvailable)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 ${isAvailable ? 'bg-orange-500' : 'bg-slate-300'}`}
+                      >
+                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isAvailable ? 'translate-x-6' : 'translate-x-1'}`} />
+                      </button>
+                      {role === "admin" && (
+                        <button 
+                          onClick={() => openEditModal(item)}
+                          className="p-1.5 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-md transition-colors"
+                          title="Edit Item"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                   
-                  {/* Custom iOS Toggle */}
-                  <button 
-                    onClick={() => toggleAvailability(item.id, isAvailable)}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 ${isAvailable ? 'bg-emerald-500' : 'bg-slate-300'}`}
-                  >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isAvailable ? 'translate-x-6' : 'translate-x-1'}`} />
-                  </button>
-                </div>
-                
-                <div className="flex justify-between items-start">
-                  <h3 className="text-lg font-bold text-slate-900 mb-1 leading-tight pr-2">{item.name}</h3>
-                  {role === "admin" && (
-                    <button 
-                      onClick={() => openEditModal(item)}
-                      className="p-1.5 text-slate-400 hover:text-orange-500 hover:bg-orange-50 rounded-md transition-colors"
-                      title="Edit Item"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-                
-                <p className="text-xs text-slate-500 line-clamp-2 mb-4 flex-1 mt-1">
-                  {item.description || "No description provided."}
-                </p>
-                
-                <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
-                   <span className="font-black text-slate-900">₹{item.price}</span>
-                   <span className={`text-xs font-bold px-2 py-1 rounded-md ${isAvailable ? 'text-emerald-700 bg-emerald-50' : 'text-red-700 bg-red-50'}`}>
-                     {isAvailable ? 'In Stock' : 'Sold Out'}
-                   </span>
+                  <p className="text-xs text-slate-500 line-clamp-2 mb-4 flex-1">
+                    {item.description || "No description provided."}
+                  </p>
+                  
+                  <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
+                     <span className="font-black text-slate-900">₹{item.price}</span>
+                     <span className={`text-xs font-bold px-2 py-1 rounded-md ${isAvailable ? 'text-orange-700 bg-orange-50' : 'text-red-700 bg-red-50'}`}>
+                       {isAvailable ? 'In Stock' : 'Sold Out'}
+                     </span>
+                  </div>
                 </div>
               </div>
             );

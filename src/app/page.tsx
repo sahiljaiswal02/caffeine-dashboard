@@ -12,15 +12,22 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { role, user } = useAuth();
+  const { role, user, loading } = useAuth();
 
   // If already logged in, redirect based on role
   useEffect(() => {
-    if (user) {
+    if (user && !loading) {
       if (role === "admin") router.push("/admin");
       else if (role === "cook") router.push("/cook");
+      else if (role === null) {
+        // User logged in but has no role in Firestore
+        setIsLoading(false);
+        setError("Your account does not have staff access. Please contact an administrator to assign a role.");
+        // Optionally sign them out so they aren't stuck logged in without access
+        auth.signOut();
+      }
     }
-  }, [user, role, router]);
+  }, [user, role, loading, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +37,8 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
       // The onAuthStateChanged listener in useAuth will handle the redirect
     } catch (err: any) {
-      setError("Invalid credentials. Please try again.");
+      console.error("Login failed:", err);
+      setError(`Login failed: ${err.message || "Invalid credentials"}`);
       setIsLoading(false);
     }
   };
