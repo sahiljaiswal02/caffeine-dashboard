@@ -2,7 +2,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useMemo } from "react";
-import { collection, query, onSnapshot, orderBy, doc, deleteDoc, getDocs } from "firebase/firestore";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -198,21 +198,6 @@ export default function AdminDashboard() {
             {status}
           </span>
         );
-    }
-  };
-
-  const clearOrders = async () => {
-    if (window.confirm("Are you sure you want to delete ALL demo orders? This will reset all stats. This cannot be undone.")) {
-      try {
-        const q = query(collection(db, "orders"));
-        const snapshot = await getDocs(q);
-        const deletePromises = snapshot.docs.map(docSnap => deleteDoc(doc(db, "orders", docSnap.id)));
-        await Promise.all(deletePromises);
-        alert("All demo orders and stats cleared successfully!");
-      } catch (error) {
-        console.error("Error clearing orders: ", error);
-        alert("Error clearing orders. Please check the console.");
-      }
     }
   };
 
@@ -593,12 +578,6 @@ export default function AdminDashboard() {
               <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
                 Latest {Math.min(orders.length, 15)}
               </span>
-              <button
-                onClick={clearOrders}
-                className="w-full sm:w-auto px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2"
-              >
-                Clear Demo Data
-              </button>
               <button
                 onClick={generatePDF}
                 className="w-full sm:w-auto px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2"
