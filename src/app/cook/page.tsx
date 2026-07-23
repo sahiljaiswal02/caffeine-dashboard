@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { collection, query, onSnapshot, orderBy, doc, updateDoc, where } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { ChefHat, CheckCircle2, Clock, PlayCircle, LogOut, Package, ArrowLeft } from "lucide-react";
+import OrderActionPanel from "@/components/OrderActionPanel";
 
 type Tab = "pending" | "preparing" | "ready" | "delivered";
 
@@ -148,6 +149,9 @@ export default function CookDashboard() {
               ✓ Completed
             </div>
           )}
+          <div className="mt-3">
+            <OrderActionPanel order={order} />
+          </div>
         </div>
       </div>
     );

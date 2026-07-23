@@ -20,6 +20,7 @@ import {
   PlayCircle,
   Clock,
 } from "lucide-react";
+import OrderActionPanel from "@/components/OrderActionPanel";
 
 export default function AdminDashboard() {
   const { role, loading, user } = useAuth();
@@ -360,6 +361,9 @@ export default function AdminDashboard() {
           </li>
         ))}
       </ul>
+      <div className="mt-4 pt-4 border-t border-slate-200 flex justify-end">
+        <OrderActionPanel order={order} />
+      </div>
     </div>
   );
 
