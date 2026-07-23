@@ -220,7 +220,7 @@ export default function AdminInventory() {
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
           <button
             onClick={handleMigrateMenu}
-            className="px-4 py-2 flex-1 sm:flex-none justify-center bg-amber-50 text-amber-700 rounded-lg text-sm font-bold hover:bg-amber-100 transition-colors shadow-sm flex items-center gap-2 border border-amber-200"
+            className="hidden px-4 py-2 flex-1 sm:flex-none justify-center bg-amber-50 text-amber-700 rounded-lg text-sm font-bold hover:bg-amber-100 transition-colors shadow-sm items-center gap-2 border border-amber-200"
           >
             <Database className="w-4 h-4" /> Migrate
           </button>
